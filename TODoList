@@ -1,0 +1,138 @@
+package ClassExerises10.toDoList;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
+
+public class toDoList extends JFrame { // add in " extends JFrame "
+    private JPanel rootPanel;
+    private JTextField newToDoTextFeild;
+    private JLabel instructionLabel;
+    private JButton addToDobutton;
+    private JList<String> toDoList;
+    private JButton deleteSelectedButton;
+    private DefaultListModel<String> listModel; // created as a global variable <String>
+    private JPopupMenu rightClickMenu; // add in manually
+    private JMenuItem deleteMenuItem; // add in to create it manually
+
+    toDoList() {
+        setTitle("To do List"); // give window a tittle
+        setContentPane(rootPanel);  // rootPanel
+        setPreferredSize(new Dimension(600, 600)); // add in 'new Dimension'
+        pack();
+        setVisible(true); // add true
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);    // exit it
+
+        listModel = new DefaultListModel<>();   //configure in constructor
+        toDoList.setModel(listModel);
+
+        toDoList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // be able to select things in the list
+
+        getRootPane().setDefaultButton(addToDobutton);  // 'enter' to click button
+
+
+        // add a pop up menu when user right clicks // import jPopupmenue, + private JmenuItem
+        JPopupMenu rightClickMenu = new JPopupMenu();  // establish new popup menu
+        JMenuItem deleteMenuItem = new JMenuItem("Delete"); // give menu option in menu
+        rightClickMenu.add(deleteMenuItem); // when you right click the menu add "Delete" to the menu
+
+        toDoList.setComponentPopupMenu(rightClickMenu); // associate it to component
+
+
+        addListeners();
+
+    }
+
+    private void addListeners() {   // new method
+
+        addToDobutton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String newToDo = newToDoTextFeild.getText();
+                newToDo = newToDo.trim(); // remove white space
+                if (newToDo.isEmpty()) {
+                    JOptionPane.showMessageDialog(toDoList.this, "Enter a todo item");
+                } else {
+                    listModel.addElement(newToDo);
+                    newToDoTextFeild.setText(""); // set text field to empty string ... ?
+
+                }
+            }
+
+        });
+
+        deleteMenuItem.addActionListener(e -> {
+            int selectedIndex = toDoList.getSelectedIndex();  // get selected item
+        if (selectedIndex != -1 ) {  // make sure item exists
+            listModel.remove(selectedIndex); // remove item
+        } else {
+            JOptionPane.showMessageDialog(toDoList.this, "Select an item to delete");
+        }
+        });
+
+        toDoList.addMouseListener(new MouseListener() {  // mouse clicks listener
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int selection = toDoList.locationToIndex(e.getPoint());  // e.getpoint knows which JList item was under the click
+                toDoList.setSelectedIndex(selection);
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {  // do not need
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) { // do not need
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) { // do not need but can set colors
+                toDoList.setBackground(Color.ORANGE);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {  // do not need but can set a colo
+                toDoList.setBackground(Color.BLUE);
+            }
+        });
+
+        deleteSelectedButton.addActionListener(e -> {  // DELETE BUTTON ACTION
+            // what was selected
+            int selectedIndex = toDoList.getSelectedIndex();  // get selected item
+            if (selectedIndex != -1 ) {  // make sure item exists
+                String itemToDelete = toDoList.getSelectedValue();  // set variable for item to delete
+                // confirmation message for the user
+                if (JOptionPane.showConfirmDialog(toDoList.this, "Delete " + itemToDelete + " ?", "" +
+                        "Delete", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
+                    listModel.remove(selectedIndex); // remove item
+                }
+            } else {
+                JOptionPane.showMessageDialog(toDoList.this, "Select an item to delete");
+
+            }
+        });
+
+
+
+
+
+
+
+        toDoList.addListSelectionListener(e -> {  //  ADD BUTTON ACTION
+            // what was selected from the todo list
+            int selectedIndex = toDoList.getSelectedIndex(); // -1 if nothing is elected
+            if (selectedIndex != -1) {  // if object selected is there remove it by clicking on it
+                String itemToDelete = toDoList.getSelectedValue();  // set variable for item to delete
+                if (JOptionPane.showConfirmDialog(toDoList.this,
+                        "Delete " + itemToDelete + " ?", "Delete", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) { // confirmation message for user
+                    listModel.remove(selectedIndex);  // remove if it is there
+                }
+            }
+        });
+
+    }
+}
